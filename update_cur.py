@@ -16,6 +16,10 @@ webhook = ""
 jpy_price, jpy_update = get_price("JPY")
 eur_price, eur_update = get_price("EUR")
 
+# 目标汇率
+jpy_target = 4.80
+eur_target = 780
+
 
 # 每天18点发送日元牌价图片
 if current_hour == 18:
@@ -31,13 +35,15 @@ if current_hour == 18:
     img_base64 = base64.b64encode(img).decode('utf-8')
     # sent message
     qywx_pic(webhook, img_base64, md5)
-
+    # send current target setting
+    stat = f"JPY target: {jpy_target}\n EUR target: {eur_target}"
+    qywx_push(webhook,stat)
 
 # 只在白天提醒
 if current_hour >= 8 or current_hour < 1:
-    if float(jpy_price) < 4.80:
     # 日元牌价
-    # 如果日元牌价低于0.48，就mention @all 否则只发送推送
+    # 如果日元牌价低于jpy_target，就mention @all 否则只发送推送
+    if float(jpy_price) < jpy_target:
         text = gen_cur_msg("日元", jpy_price, jpy_update)
         mention = ["@all"]
         qywx_push(webhook,text,mention)
@@ -46,10 +52,10 @@ if current_hour >= 8 or current_hour < 1:
         qywx_push(webhook,text)
 
     # 欧元牌价
-    # 如果欧元牌价低于7.8，就mention @all 否则只发送推送
-    if float(eur_price) < 780:
+    # 如果欧元牌价低于eur_target，就mention @all 否则只发送推送
+    if float(eur_price) < eur_target:
         text = gen_cur_msg("欧元", eur_price, eur_update)
-        mention = ["@all"]
+        mention = ["@13605743759"]
         qywx_push(webhook,text,mention)
     else:
         text = f"EUR {eur_price} @{eur_update}"
