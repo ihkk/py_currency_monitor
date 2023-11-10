@@ -9,6 +9,7 @@ from io import BytesIO
 # 判断时间
 time_now = datetime.now()
 current_hour = int(time_now.strftime("%H"))
+# current_weekday = int(time_now.strftime("%w"))
 
 # 企业微信机器人webhook TODO
 webhook = ""
@@ -17,7 +18,7 @@ eur_price, eur_update = get_price("EUR")
 
 
 # 每天18点发送日元牌价图片
-if current_hour != 18:
+if current_hour == 18:
     img = get_jpy_img()
     # calculate md5 of the file
     img = Image.open(BytesIO(img))
@@ -34,27 +35,27 @@ if current_hour != 18:
 
 # 只在白天提醒
 if current_hour >= 8 or current_hour < 1:
-    if float(jpy_price) > 5.05 and float(eur_price) > 800:
-        text = f"JPY {jpy_price} EUR {eur_price}"
-        qywx_push(webhook,text)
+    if float(jpy_price) < 4.80:
+    # 日元牌价
+    # 如果日元牌价低于0.48，就mention @all 否则只发送推送
+        text = gen_cur_msg("日元", jpy_price, jpy_update)
+        mention = ["@all"]
+        qywx_push(webhook,text,mention)
     else:
-        # 日元牌价
-        # 如果日元牌价低于0.51，就mention @all 否则只发送推送
-        if float(jpy_price) < 5.05:
-            text = gen_cur_msg("日元", jpy_price, jpy_update)
-            mention = ["@all"]
-            qywx_push(webhook,text,mention)
-        else:
-            text = f"JPY {jpy_price} @{jpy_update}"
-            qywx_push(webhook,text)
+        text = f"JPY {jpy_price} @{jpy_update}"
+        qywx_push(webhook,text)
 
-        # 欧元牌价
-        # 如果欧元牌价低于8，就mention @all 否则只发送推送
-        if float(eur_price) < 800:
-            text = gen_cur_msg("欧元", eur_price, eur_update)
-            mention = ["@all"]
-            qywx_push(webhook,text,mention)
-        else:
-            text = f"EUR {eur_price} @{eur_update}"
-            qywx_push(webhook,text)
+    # 欧元牌价
+    # 如果欧元牌价低于7.8，就mention @all 否则只发送推送
+    if float(eur_price) < 780:
+        text = gen_cur_msg("欧元", eur_price, eur_update)
+        mention = ["@all"]
+        qywx_push(webhook,text,mention)
+    else:
+        text = f"EUR {eur_price} @{eur_update}"
+        qywx_push(webhook,text)
+        
             
+    # if float(jpy_price) > 4.80 and float(eur_price) > 800:
+    #     text = f"JPY {jpy_price} EUR {eur_price}"
+    #     qywx_push(webhook,text)
