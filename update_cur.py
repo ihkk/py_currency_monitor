@@ -9,7 +9,7 @@ from io import BytesIO
 # 判断时间
 time_now = datetime.now()
 current_hour = int(time_now.strftime("%H"))
-# current_weekday = int(time_now.strftime("%w"))
+current_weekday = int(time_now.strftime("%w"))
 
 # 企业微信机器人webhook TODO
 webhook = ""
@@ -20,6 +20,9 @@ eur_price, eur_update = get_price("EUR")
 jpy_target = 4.80
 eur_target = 780
 
+# 周六周日不提醒
+if current_weekday == 0 or current_weekday == 6:
+    exit()
 
 # 每天18点发送日元牌价图片
 if current_hour == 18:
@@ -36,7 +39,7 @@ if current_hour == 18:
     # sent message
     qywx_pic(webhook, img_base64, md5)
     # send current target setting
-    stat = f"JPY target: {jpy_target}\n EUR target: {eur_target}"
+    stat = f"🇯🇵 target: {jpy_target}\n🇪🇺 target: {eur_target}"
     qywx_push(webhook,stat)
 
 # 只在白天提醒
